@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:take_notes/src/ui/pins/pin_screen.dart';
 import '../dairy/add_dairy_screen.dart';
 import '../auth/screen/login_screen.dart';
-import '../notes/note_screen.dart';
+import '../notes/screen/note_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);

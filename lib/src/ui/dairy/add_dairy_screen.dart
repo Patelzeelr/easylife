@@ -96,9 +96,9 @@ class _AddDairyScreenState extends State<AddDairyScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                customTextFormField(_titleController, "Title", AppStyle.mainTitle),
+                customTextFormField(_titleController, "Title", AppStyle.mainTitle,1),
                 const Padding(padding: EdgeInsets.only(bottom: 28.0)),
-                customTextFormField(_mainController, "Note", AppStyle.mainContent),
+                customTextFormField(_mainController, "Note", AppStyle.mainContent,20),
               ],
             ),
           ),

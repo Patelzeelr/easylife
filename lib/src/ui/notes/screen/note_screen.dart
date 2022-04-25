@@ -1,12 +1,43 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:take_notes/src/ui/notes/add_note_model.dart';
 import 'add_notes_screen.dart';
 import 'note_reader_screen.dart';
-import '../../widgets/note_card.dart';
+import '../../../widgets/note_card.dart';
 
-class NoteScreen extends StatelessWidget {
+class NoteScreen extends StatefulWidget {
   const NoteScreen({Key? key}) : super(key: key);
+
+  @override
+  State<NoteScreen> createState() => _NoteScreenState();
+}
+
+class _NoteScreenState extends State<NoteScreen> {
+  final List<TextEditingController> controllers = [];
+  /*List<AddNoteModel> addNoteList = [];
+
+  void getNoteData() async {
+    List<AddNoteModel> newList = [];
+
+    QuerySnapshot noteValue = await FirebaseFirestore.instance.collection("user")
+        .doc(FirebaseAuth.instance.currentUser?.email).collection("Notes")
+        .get();
+
+    noteValue.docs.forEach((element) {
+      print(element.id);
+      AddNoteModel addNoteModel = AddNoteModel(
+          title: element.get("list"));
+      newList.add(addNoteModel);
+    });
+    addNoteList = newList;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getNoteData();
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +49,7 @@ class NoteScreen extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const AddNotesScreen()));
+                    builder: (context) => AddNotesScreen(controllers: controllers)));
           },
           child: const Icon(Icons.add, color: Colors.white),
         ),

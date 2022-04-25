@@ -18,6 +18,12 @@ class _DairyScreenState extends State<DairyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          elevation: 0.0,
+          backgroundColor: Colors.black,
+          title: const Text('Dairy Screen'),
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
         backgroundColor: Colors.black,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,

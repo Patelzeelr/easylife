@@ -66,9 +66,9 @@ class _ViewDairyScreenState extends State<ViewDairyScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            customTextFormField(_titleController, "Add note title", AppStyle.mainTitle),
+            customTextFormField(_titleController, "Add note title", AppStyle.mainTitle,1),
             const Padding(padding: EdgeInsets.only(bottom: 28.0)),
-            customTextFormField(_mainController, "Add note content", AppStyle.mainContent),
+            customTextFormField(_mainController, "Add note content", AppStyle.mainContent,20),
           ],
         ),
       ),

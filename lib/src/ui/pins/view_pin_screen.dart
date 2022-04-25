@@ -104,12 +104,12 @@ class _ViewPinScreenState extends State<ViewPinScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             customTextFormField(
-                _titleController, "Add note title", AppStyle.mainTitle),
+                _titleController, "Add note title", AppStyle.mainTitle,1),
             const Padding(padding: EdgeInsets.only(bottom: 8.0)),
             Text('${date}', style: AppStyle.dateTitle),
             const Padding(padding: EdgeInsets.only(bottom: 28.0)),
             customTextFormField(
-                _mainController, "Add note content", AppStyle.mainContent),
+                _mainController, "Add note content", AppStyle.mainContent,20),
           ],
         ),
       ),
