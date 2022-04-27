@@ -9,7 +9,8 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 
-import '../../../style/app_style.dart';
+import '../../../utils/localization/languages/languages.dart';
+import '../../../utils/style/app_style.dart';
 import '../../../widgets/custom_text_form_field.dart';
 
 class AddNotesScreen extends StatefulWidget {
@@ -27,11 +28,11 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
   final _titleController = TextEditingController();
   final _mainController = TextEditingController();
   bool pinBool = false;
+  bool onTap = false;
 
   final checkListController = TextEditingController();
   List<TextFormField> checkLists = [];
   List<String?> data = [];
-  //List<bool> isChecked = [false];
 
   firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
@@ -40,17 +41,17 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
 
   void _addCheckListContainer(controller) {
     setState(() {
-      checkLists.add(checkBoxListTile(controller));
+      checkLists.add(_checkBoxListTile(controller));
     });
   }
 
-  void _addNotes() async {
+  _addNotes() async {
     String url = "";
     checkLists.forEach((element) {
       data.add(element.controller?.text);
     });
     if (file != null) {
-      url = await uploadImage();
+      url = await _uploadImage();
     }
     Map<String, dynamic> noteData = {
       "note_title": _titleController.text,
@@ -60,7 +61,7 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
       "color_id": color_id,
       "pinned": false,
       "list": data,
-      "image": url,
+      "image": url
     };
     await FirebaseFirestore.instance
         .collection("user")
@@ -70,13 +71,22 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
   }
 
   void _addPinNotes() async {
+    String url = "";
+    checkLists.forEach((element) {
+      data.add(element.controller?.text);
+    });
+    if (file != null) {
+      url = await _uploadImage();
+    }
     Map<String, dynamic> pinNoteData = {
       "note_title": _titleController.text,
       "note_content": _mainController.text,
       "creation_date":
           "${date.day}-${date.month}-${date.hour} ${date.hour}:${date.minute}",
       "color_id": color_id,
-      "pinned": false
+      "pinned": false,
+      "list": data,
+      "image": url
     };
     await FirebaseFirestore.instance
         .collection("user")
@@ -103,57 +113,81 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
               icon: pinBool == false
                   ? const Icon(Icons.push_pin_outlined)
                   : const Icon(Icons.push_pin)),
+          IconButton(
+              onPressed: () {
+                _addOption(context);
+              },
+              icon: const Icon(Icons.add_box_outlined)),
         ],
-        title: const Text(
-          "Add a new note",
+        title: Text(
+          Languages.of(context)!.appBarAddNotes,
           style: TextStyle(color: Colors.black),
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              customTextFormField(
-                  _titleController, "Add note title", AppStyle.mainTitle, 1),
-              const Padding(padding: EdgeInsets.only(bottom: 8.0)),
-              Text('${date}', style: AppStyle.dateTitle),
-              const Padding(padding: EdgeInsets.only(bottom: 10.0)),
-              Container(
-                width: double.infinity,
-                child: file != null
-                    ? Image(image: FileImage(file!))
-                    : const Text(""),
+        child: onTap == true
+            ? Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    CircularProgressIndicator(),
+                    Text(
+                      "Uploading...",
+                      style: TextStyle(fontSize: 15.0),
+                    ),
+                  ],
+                ),
+              )
+            : SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    customTextFormField(_titleController, Languages.of(context)!.addNoteTitle,
+                        AppStyle.mainTitle, 1),
+                    const Padding(padding: EdgeInsets.only(bottom: 8.0)),
+                    Text('$date', style: AppStyle.dateTitle),
+                    const Padding(padding: EdgeInsets.only(bottom: 10.0)),
+                    SizedBox(
+                      width: double.infinity,
+                      child: file != null
+                          ? Image(image: FileImage(file!))
+                          : const Text(""),
+                    ),
+                    const Padding(padding: EdgeInsets.only(bottom: 10.0)),
+                    customTextFormField(_mainController, Languages.of(context)!.addNoteContent,
+                        AppStyle.mainContent, null),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: checkLists.length,
+                      itemBuilder: (context, i) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: checkLists[i],
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-              const Padding(padding: EdgeInsets.only(bottom: 10.0)),
-              customTextFormField(_mainController, "Add note content",
-                  AppStyle.mainContent, null),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: checkLists.length,
-                itemBuilder: (context, i) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: checkLists[i],
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
       ),
       floatingActionButton: _floatingButton(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: _bottomBar(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
   Widget _floatingButton(context) => FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           if (pinBool == false) {
-            _addNotes();
+            setState(() {
+              onTap = true;
+            });
+            await _addNotes();
+            setState(() {
+              onTap = false;
+            });
           } else {
             _addPinNotes();
           }
@@ -161,17 +195,6 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
         },
         backgroundColor: Colors.black,
         child: const Icon(Icons.save_alt),
-      );
-
-  Widget _bottomBar(context) => Row(
-        children: [
-          IconButton(
-              onPressed: () {
-                _addOption(context);
-              },
-              icon: const Icon(Icons.add_box_outlined)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
-        ],
       );
 
   _addOption(context) => showModalBottomSheet(
@@ -192,11 +215,11 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
                     _addCheckListContainer(textEditingController);
                   });
                   Navigator.pop(context);
-                }, Icons.check_box_outlined, 'List'),
+                }, Icons.check_box_outlined, Languages.of(context)!.addList),
                 _customListTile(() {
-                  chooseImage();
-                }, Icons.image, 'Add Image'),
-                _customListTile(() {}, Icons.brush, 'Paint'),
+                  _chooseImage();
+                }, Icons.image, Languages.of(context)!.addImage),
+                //_customListTile(() {}, Icons.brush, 'Paint'),
               ],
             ),
           ),
@@ -212,7 +235,7 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
         ),
       );
 
-  TextFormField checkBoxListTile(controller) {
+  TextFormField _checkBoxListTile(controller) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
@@ -231,7 +254,7 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
     );
   }
 
-  Future<String> uploadImage() async {
+  Future<String> _uploadImage() async {
     TaskSnapshot taskSnapshot = await FirebaseStorage.instance
         .ref()
         .child("images")
@@ -241,7 +264,7 @@ class _AddNotesScreenState extends State<AddNotesScreen> {
     return taskSnapshot.ref.getDownloadURL();
   }
 
-  chooseImage() async {
+  _chooseImage() async {
     XFile? xFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     file = File(xFile!.path);
     setState(() {});

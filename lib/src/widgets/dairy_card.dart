@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:take_notes/src/style/app_style.dart';
+
+import '../utils/style/app_style.dart';
 
 Widget dairyCard(Function()? onTap,QueryDocumentSnapshot doc){
   return InkWell(

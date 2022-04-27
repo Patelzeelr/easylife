@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'register_screen.dart';
 
+import '../../../utils/localization/languages/languages.dart';
 import '../../dashboard/home_screen.dart';
 import '../method/validation_method.dart';
 import '../widgets/button.dart';
 import '../widgets/text_form_field.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  late bool isIndicate = false;
+  bool isIndicate = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,41 +28,78 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.all(26.0),
         child: isIndicate
-            ? const CircularProgressIndicator(color: Colors.white)
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.event_note_sharp,
-                      color: Colors.white, size: 100.0),
-                  const Padding(padding: EdgeInsets.only(top: 10.0)),
-                  const Text("Login",
-                      style: TextStyle(fontSize: 20.0, color: Colors.white)),
-                  const Padding(padding: EdgeInsets.only(bottom: 20.0)),
-                  textFormField(validateEmail, _emailController, false,
-                      "Enter your email", Icons.email, (value) {}),
-                  const Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                  textFormField(validatePassword, _passwordController, true,
-                      "Enter your password", Icons.lock, (value) {}),
-                  const Padding(padding: EdgeInsets.only(top: 10.0)),
-                  _forgotPassword(),
-                  const Padding(padding: EdgeInsets.only(top: 20.0)),
-                  button(() async {
-                    try {
-                      final user = await _auth.signInWithEmailAndPassword(
-                          email: _emailController.text,
-                          password: _passwordController.text);
-                      if (user != null) {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()));
-                      }
-                    } catch (e) {}
-                  }, "Login"),
-                  const Padding(padding: EdgeInsets.only(top: 10.0)),
-                  _row()
-                ],
+            ? const Center(
+                child: CircularProgressIndicator(color: Colors.white))
+            : SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.event_note_sharp,
+                        color: Colors.white, size: 100.0),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Text(Languages.of(context)!.labelSignin,
+                          style: const TextStyle(
+                              fontSize: 20.0, color: Colors.white)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: textFormField(
+                          validateEmail,
+                          _emailController,
+                          false,
+                          Languages.of(context)!.labelEmail,
+                          Icons.email,
+                          (value) {}),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: textFormField(
+                          validatePassword,
+                          _passwordController,
+                          true,
+                          Languages.of(context)!.labelAuthPassword,
+                          Icons.lock,
+                          (value) {}),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: _forgotPassword(),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: button(() async {
+                        try {
+                          if (_emailController.text.isNotEmpty &&
+                              _passwordController.text.isNotEmpty) {
+                            setState(() {
+                              isIndicate = true;
+                            });
+                          }
+                          final user = await _auth.signInWithEmailAndPassword(
+                              email: _emailController.text,
+                              password: _passwordController.text);
+
+                          if (user != null) {
+                            await Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const HomeScreen()));
+                          }
+                        } catch (e) {
+                          setState(() {
+                            isIndicate = false;
+                          });
+                        }
+                      }, Languages.of(context)!.labelSigninButton),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: _row(),
+                    )
+                  ],
+                ),
               ),
       ),
     );
@@ -69,26 +107,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _forgotPassword() => GestureDetector(
         onTap: () {},
-        child: const Align(
+        child: Align(
             alignment: Alignment.topRight,
-            child: Text('Forgot Password?',
-                style: TextStyle(color: Colors.white))),
+            child: Text(Languages.of(context)!.labelForgotPassword,
+                style: const TextStyle(color: Colors.white))),
       );
 
   Widget _row() => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Dont have an acoount?',
-              style: TextStyle(color: Colors.white)),
+          Text(Languages.of(context)!.labelDoNotHaveAnAccount,
+              style: const TextStyle(color: Colors.white)),
           GestureDetector(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const RegisterScreen()));
               },
-              child: const Text('Regiser',
-                  style: TextStyle(
+              child: Text(Languages.of(context)!.labelSignup,
+                  style: const TextStyle(
                       color: Colors.white, fontWeight: FontWeight.bold))),
         ],
       );

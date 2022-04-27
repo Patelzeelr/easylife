@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../utils/localization/languages/languages.dart';
 import '../../dashboard/home_screen.dart';
 import '../method/validation_method.dart';
 import '../widgets/button.dart';
@@ -51,52 +52,85 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       const Icon(Icons.event_note_sharp,
                           color: Colors.white, size: 100.0),
-                      const Padding(padding: EdgeInsets.only(top: 10.0)),
-                      const Text("Register",
-                          style:
-                              TextStyle(fontSize: 20.0, color: Colors.white)),
-                      const Padding(padding: EdgeInsets.only(bottom: 20.0)),
-                      textFormField(
-                          validateUsername,
-                          _userNameController,
-                          false,
-                          "Enter your Username",
-                          Icons.account_circle,
-                          (value) {}),
-                      const Padding(padding: EdgeInsets.only(bottom: 10.0)),
-                      textFormField(validateEmail, _emailController, false,
-                          "Enter your email", Icons.email, (value) {}),
-                      const Padding(padding: EdgeInsets.only(bottom: 10.0)),
-                      textFormField(validatePassword, _passwordController, true,
-                          "Enter your password", Icons.lock, (value) {}),
-                      const Padding(padding: EdgeInsets.only(bottom: 10.0)),
-                      textFormField(
-                          validateDairyPassword,
-                          _dairyNumberController,
-                          true,
-                          "Enter password to protect dairy",
-                          Icons.key,
-                          (value) {}),
-                      const Padding(padding: EdgeInsets.only(bottom: 20.0)),
-                      button(() async {
-                        try {
-                          final newUser =
-                              await _auth.createUserWithEmailAndPassword(
-                                  email: _emailController.text,
-                                  password: _passwordController.text);
-                          _addUser();
-                          if (newUser != null) {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const HomeScreen()));
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Text(Languages.of(context)!.labelSignup,
+                            style: const TextStyle(
+                                fontSize: 20.0, color: Colors.white)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: textFormField(
+                            validateUsername,
+                            _userNameController,
+                            false,
+                            Languages.of(context)!.labelUserName,
+                            Icons.account_circle,
+                            (value) {}),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: textFormField(
+                            validateEmail,
+                            _emailController,
+                            false,
+                            Languages.of(context)!.labelEmail,
+                            Icons.email,
+                            (value) {}),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: textFormField(
+                            validatePassword,
+                            _passwordController,
+                            true,
+                            Languages.of(context)!.labelAuthPassword,
+                            Icons.lock,
+                            (value) {}),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: textFormField(
+                            validateDairyPassword,
+                            _dairyNumberController,
+                            true,
+                            Languages.of(context)!.labelProtectDiary,
+                            Icons.key,
+                            (value) {}),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: button(() async {
+                          try {
+                            if (_emailController.text.isNotEmpty &&
+                                _passwordController.text.isNotEmpty) {
+                              setState(() {
+                                isIndicate = true;
+                              });
+                            }
+                            final newUser =
+                                await _auth.createUserWithEmailAndPassword(
+                                    email: _emailController.text,
+                                    password: _passwordController.text);
+                            _addUser();
+                            if (newUser != null) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const HomeScreen()));
+                            }
+                          } catch (e) {
+                            setState(() {
+                              isIndicate = false;
+                            });
                           }
-                        } catch (e) {
-                          print(e);
-                        }
-                      }, "Register"),
-                      const Padding(padding: EdgeInsets.only(bottom: 20.0)),
-                      _row()
+                        }, Languages.of(context)!.labelSignupButton),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: _row(),
+                      )
                     ],
                   ),
                 ),
@@ -108,17 +142,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _row() => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Already have an acoount?',
-              style: TextStyle(color: Colors.white)),
+          Text(Languages.of(context)!.labelAlreadyHaveAnAccount,
+              style: const TextStyle(color: Colors.white)),
           GestureDetector(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const LoginScreen()));
               },
-              child: const Text('Login',
-                  style: TextStyle(
+              child: Text(Languages.of(context)!.labelSignin,
+                  style: const TextStyle(
                       color: Colors.white, fontWeight: FontWeight.bold))),
         ],
       );
